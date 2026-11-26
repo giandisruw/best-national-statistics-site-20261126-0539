@@ -3,21 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="NusaStat — Indonesia in numbers: population, economy, prices, labour and provinces, with real figures, sources and charts. Works offline.">
 <title>NusaStat — Indonesia in Numbers</title>
+<meta name="description" content="Indonesia in numbers — population, economy, prices, work and regions. Real published figures, each with its source and year.">
 <link rel="stylesheet" href="style.css">
-<script type="module" src="main.js"></script>
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="#/"><span class="mark">◈</span> NusaStat</a>
-  <nav aria-label="Sections"></nav>
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="#/">◆ NusaStat</a>
+    <nav id="nav" aria-label="Sections"></nav>
+  </div>
 </header>
-<main id="app"><p>Loading Indonesia's statistics…</p></main>
-<footer>
-  <p><strong>NusaStat</strong> — Indonesia in numbers. Independent reference site, not affiliated with BPS or any government body.</p>
-  <p>Figures: BPS, World Bank, Bank Indonesia, ILO, APJII, UN · 2024, checked November 2026 · <a href="#/about">Sources &amp; method</a></p>
+<main class="wrap">
+  <div id="view">
+    <p class="loading">Loading Indonesia's statistics…</p>
+  </div>
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <p><strong>NusaStat</strong> — Indonesia in numbers. Independent reference site, not affiliated with BPS or any government body.</p>
+    <p>Figures: BPS, World Bank, Bank Indonesia, ILO, APJII, UN · 2024, checked November 2026 · <a href="#/about">Sources &amp; method</a></p>
+  </div>
 </footer>
-<noscript><p style="max-width:1080px;margin:0 auto;padding:20px">NusaStat needs JavaScript to draw its charts and tables. The figures are: population 283.5m (BPS, 2024), GDP $1,396bn, growth 5.03%, inflation 2.3%, unemployment 4.91%, poverty 8.57%.</p></noscript>
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script src="views.js"></script>
+<script src="main.js"></script>
 </body>
 </html>

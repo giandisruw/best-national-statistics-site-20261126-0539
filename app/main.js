@@ -1,96 +1,60 @@
-// NusaStat bootstrap — hash router, nav highlighting and working controls.
-// State lives here: the current route, chart ranges, and the two search boxes.
-// Every control re-renders from state, so a link, a search or a sort always
-// shows exactly what it says. No network request is ever made.
+// NusaStat boot — navigation and routing.
+//
+// The site is one page with hash routes (#/, #/population, ...). This file
+// owns only the shell around the pages: it builds the navigation bar from
+// the route list, reads the hash into a page slug, and asks NusaViews to
+// render that page. Everything a page shows lives in views.js; everything
+// a page shows numbers with lives in data.js.
 
-import { NAV, downloadCSV, render } from './views.js';
+const NAV = [
+  ["", "Overview"],
+  ["population", "Population"],
+  ["economy", "Economy"],
+  ["prices", "Prices"],
+  ["labour", "Labour"],
+  ["provinces", "Provinces"],
+  ["indicators", "All indicators"],
+  ["about", "Sources & method"],
+];
 
-const state = {
-  route: '/',
-  range: { growth: 'all', population: 'all' },
-  provinceQuery: '',
-  provinceSort: 'population',
-  indicatorQuery: '',
-};
-
-const app = document.getElementById('app');
-const nav = document.querySelector('.top nav');
-
-function routeFromHash() {
-  const hash = window.location.hash || '#/';
-  const path = hash.slice(1) || '/';
-  return path.startsWith('/') ? path : '/' + path;
+// Build the top navigation once, from the same route list the router uses,
+// so a link and its page can never drift apart.
+function buildNav() {
+  const nav = document.getElementById("nav");
+  nav.replaceChildren();
+  for (const [slug, label] of NAV) {
+    const link = document.createElement("a");
+    link.href = `#/${slug}`;
+    link.textContent = label;
+    link.dataset.slug = slug;
+    nav.appendChild(link);
+  }
 }
 
-function paintNav() {
-  const current = state.route === '/' ? '#/' : '#' + state.route;
-  nav.innerHTML = NAV.map(([href, label]) =>
-    `<a href="${href}" class="${href === current ? 'on' : ''}">${label}</a>`).join('');
+// The slug is whatever follows "#/" in the address bar; "#/" and a bare
+// "#" both mean the overview, and an unknown slug falls back to it too.
+function slugFromHash() {
+  const hash = window.location.hash || "";
+  const slug = hash.replace(/^#\/?/, "");
+  return Object.prototype.hasOwnProperty.call(window.NusaViews.ROUTES, slug)
+    ? slug
+    : "";
 }
 
-function paint() {
-  paintNav();
-  app.innerHTML = render(state);
-  restoreFocus();
+function markActive(slug) {
+  for (const link of document.querySelectorAll("#nav a")) {
+    if (link.dataset.slug === slug) link.classList.add("active");
+    else link.classList.remove("active");
+  }
 }
 
-// After a re-render caused by typing in a search box, put the caret back
-// where it was so typing never loses focus.
-let focusTarget = null;
-function restoreFocus() {
-  if (!focusTarget) return;
-  const el = document.getElementById(focusTarget.id);
-  if (el) {
-    el.focus();
-    const pos = focusTarget.pos;
-    try { el.setSelectionRange(pos, pos); } catch { /* number inputs etc. */ }
-  }
-  focusTarget = null;
+function route() {
+  const slug = slugFromHash();
+  window.NusaViews.show(slug);
+  markActive(slug);
 }
 
-function rerender(keepFocusId) {
-  if (keepFocusId) {
-    const el = document.getElementById(keepFocusId);
-    focusTarget = el ? { id: keepFocusId, pos: el.selectionStart ?? el.value.length } : null;
-  }
-  paint();
-}
-
-window.addEventListener('hashchange', () => {
-  state.route = routeFromHash();
-  state.provinceQuery = '';
-  state.indicatorQuery = '';
-  window.scrollTo(0, 0);
-  paint();
-});
-
-app.addEventListener('click', (event) => {
-  const rangeBtn = event.target.closest('[data-range]');
-  if (rangeBtn) {
-    state.range[rangeBtn.dataset.key] = rangeBtn.dataset.range;
-    rerender();
-    return;
-  }
-  const sortBtn = event.target.closest('[data-sort]');
-  if (sortBtn) {
-    state.provinceSort = sortBtn.dataset.sort;
-    rerender();
-    return;
-  }
-  if (event.target.id === 'csv-btn') {
-    downloadCSV();
-  }
-});
-
-app.addEventListener('input', (event) => {
-  if (event.target.id === 'prov-search') {
-    state.provinceQuery = event.target.value;
-    rerender('prov-search');
-  } else if (event.target.id === 'ind-search') {
-    state.indicatorQuery = event.target.value;
-    rerender('ind-search');
-  }
-});
-
-state.route = routeFromHash();
-paint();
+// The scripts load at the end of <body>, so the shell is already parsed.
+buildNav();
+route();
+window.addEventListener("hashchange", route);
