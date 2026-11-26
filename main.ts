@@ -14,7 +14,7 @@
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { cpSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-frontend.ts';
@@ -39,6 +39,39 @@ for (const shot of shots) {
   if (!/\.(png|jpe?g)$/i.test(shot)) throw new Error(`screenshot ${shot} is not a PNG or JPEG`);
   const size = statSync(join(shotsDir, shot)).size;
   if (size > 262144) throw new Error(`screenshot ${shot} is ${size} bytes, over the 256 KiB gate cap`);
+}
+
+// The gate also caps each screenshot's dimensions (long side at most 1280,
+// short side at least 360); read them from the PNG/JPEG headers here so a
+// wrongly-sized render fails loudly instead of handing in an entry the
+// scorer would refuse.
+function imageSize(path: string): { width: number; height: number } {
+  const buf = readFileSync(path);
+  if (buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  }
+  if (buf[0] === 0xff && buf[1] === 0xd8) {
+    let at = 2;
+    while (at + 9 < buf.length) {
+      if (buf[at] !== 0xff) throw new Error(`screenshot ${path} is not a well-formed JPEG`);
+      const marker = buf[at + 1];
+      const len = buf.readUInt16BE(at + 2);
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return { width: buf.readUInt16BE(at + 7), height: buf.readUInt16BE(at + 5) };
+      }
+      at += 2 + len;
+    }
+    throw new Error(`screenshot ${path} has no JPEG frame header`);
+  }
+  throw new Error(`screenshot ${path} is neither PNG nor JPEG`);
+}
+
+for (const shot of shots) {
+  const { width, height } = imageSize(join(shotsDir, shot));
+  const longSide = Math.max(width, height);
+  const shortSide = Math.min(width, height);
+  if (longSide > 1280) throw new Error(`screenshot ${shot} is ${width}x${height}, long side over the 1280 gate cap`);
+  if (shortSide < 360) throw new Error(`screenshot ${shot} is ${width}x${height}, short side under the 360 gate minimum`);
 }
 
 mkdirSync(out, { recursive: true });

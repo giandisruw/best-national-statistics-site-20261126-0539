@@ -1,8 +1,8 @@
 # NusaStat — Indonesia in Numbers
 
-[![make.fun](https://make.fun/badge/competition/best-national-statistics-site-20261126-0539)](https://make.fun/bounty/best-national-statistics-site-20261126-0539)
-[![make.fun entry](https://make.fun/badge/entry/best-national-statistics-site-20261126-0539)](https://make.fun/bounty/best-national-statistics-site-20261126-0539)
-[![make.fun leaderboard](https://make.fun/badge/leaderboard/best-national-statistics-site-20261126-0539)](https://make.fun/bounty/best-national-statistics-site-20261126-0539/leaderboard)
+[![make.fun](https://make.fun/badge/best-national-statistics-site-20261126-0539.svg)](https://make.fun/bounty/best-national-statistics-site-20261126-0539)
+[![Rank](https://make.fun/badge/best-national-statistics-site-20261126-0539/giandisruw/best-national-statistics-site-20261126-0539/rank.svg)](https://make.fun/bounty/best-national-statistics-site-20261126-0539)
+[![Reward](https://make.fun/badge/best-national-statistics-site-20261126-0539/giandisruw/best-national-statistics-site-20261126-0539/reward.svg)](https://make.fun/bounty/best-national-statistics-site-20261126-0539)
 
 **NusaStat** is an original national statistics site for Indonesia. It runs in a
 browser from static files with no network request, on desktop and on a phone.
@@ -79,3 +79,7 @@ images each under 256 KiB, so a broken entry can never be handed in silently.
 
 Built for the make.fun bounty "Make the best national statistics site"
 (best-national-statistics-site-20261126-0539). Referral code: `0txwmf1m`.
+
+Second revision, 26 November 2026: the site's pages, charts and styles were
+rewritten from scratch inside the build session so the session transcripts
+account for the code; the figures are unchanged.
